@@ -1,35 +1,102 @@
-# Brainwave_matrix_intern 
-The goal of this task was to design and implement a fully functional ATM (Automated Teller Machine) interface using Java. The application simulates real-world ATM operations, allowing users to perform transactions such as checking their balance, withdrawing funds, depositing money, and exiting the system.
+ import java.util.ArrayList;
+import java.util.Scanner;
 
----
+class Account {
+    private double balance;
+    private ArrayList<String> transactionHistory;
+    private int pin;
 
-Features Implemented:
-1. User Authentication:
-   - Users are required to enter a valid account number and PIN to access their account.
-   - The system validates the credentials before allowing any transactions.
+    public Account(double initialBalance, int pin) {
+        this.balance = initialBalance;
+        this.pin = pin;
+        this.transactionHistory = new ArrayList<>();
+        transactionHistory.add("Account created with balance: $" + initialBalance);
+    }
 
-2. Main Menu:
-   - Displays a user-friendly menu with the following options:
-     - Check Balance
-     - Withdraw Money
-     - Deposit Money
-     - Exit
+    public boolean validatePin(int enteredPin) {
+        return this.pin == enteredPin;
+    }
 
-3. Check Balance:
-   - Displays the current balance of the user's account.
+    public double getBalance() {
+        return balance;
+    }
 
-4. Withdraw Money:
-   - Allows users to withdraw a specified amount from their account.
-   - Validates the withdrawal amount to ensure it does not exceed the available balance.
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+            transactionHistory.add("Deposited: $" + amount);
+            System.out.println("Deposit successful! New balance: $" + balance);
+        } else {
+            System.out.println("Invalid deposit amount.");
+        }
+    }
 
-5. Deposit Money:
-   - Allows users to deposit a specified amount into their account.
-   - Validates the deposit amount to ensure it is a positive value.
+    public void withdraw(double amount) {
+        if (amount > 0 && amount <= balance) {
+            balance -= amount;
+            transactionHistory.add("Withdrew: $" + amount);
+            System.out.println("Withdrawal successful! New balance: $" + balance);
+        } else {
+            System.out.println("Invalid withdrawal amount or insufficient balance.");
+        }
+    }
 
-6. Exit:
-   - Terminates the session and displays a goodbye message.
+    public void printTransactionHistory() {
+        System.out.println("\nTransaction History:");
+        for (String transaction : transactionHistory) {
+            System.out.println(transaction);
+        }
+    }
+}
 
-7. Error Handling:
-   - Handles invalid inputs (e.g., negative amounts, incorrect PIN).
-   - Provides appropriate error messages to guide the user.
+public class ATM {
+    private static Scanner scanner = new Scanner(System.in);
+    private static Account account = new Account(1000.0, 1234); // Default account with balance $1000 and PIN 1234
 
+    public static void main(String[] args) {
+        System.out.print("Enter your PIN: ");
+        int enteredPin = scanner.nextInt();
+
+        if (!account.validatePin(enteredPin)) {
+            System.out.println("Incorrect PIN. Access Denied.");
+            return;
+        }
+
+        while (true) {
+            System.out.println("\nATM Menu:");
+            System.out.println("1. Check Balance");
+            System.out.println("2. Deposit");
+            System.out.println("3. Withdraw");
+            System.out.println("4. Transaction History");
+            System.out.println("5. Exit");
+            System.out.print("Choose an option: ");
+
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.println("Current Balance: $" + account.getBalance());
+                    break;
+                case 2:
+                    System.out.print("Enter deposit amount: ");
+                    double depositAmount = scanner.nextDouble();
+                    account.deposit(depositAmount);
+                    break;
+                case 3:
+                    System.out.print("Enter withdrawal amount: ");
+                    double withdrawAmount = scanner.nextDouble();
+                    account.withdraw(withdrawAmount);
+                    break;
+                case 4:
+                    account.printTransactionHistory();
+                    break;
+                case 5:
+                    System.out.println("Thank you for using the ATM. Goodbye!");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+}
